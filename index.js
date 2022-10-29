@@ -1,15 +1,11 @@
 import * as fs from 'fs/promises';
-import fetch from 'node-fetch';
-import ora from 'ora';
 import sources from './sources.js'
 
 function fixLayerFont(layer) {
 	const fonts = layer.layout?.['text-font'];
 	if (fonts) {
-		layer.layout['text-font'] = [fonts[0].replace(/.*(Regular|Bold|Italic)/, 'Open Sans $1')];
-		const size = layer.layout['text-size'];
-		if (typeof size == 'number') layer.layout['text-size'] += 3;
-		else layer.layout['text-size'].stops?.forEach(stop => stop[1] += 3);
+		const font = fonts[fonts.length - 1].replace(/.*(Regular|Bold|Italic)/, 'Klokantech Noto Sans $1');
+		layer.layout['text-font'] = [font];
 	}
 }
 
@@ -89,12 +85,10 @@ async function main() {
 	await fs.rm('styles', { force: true, recursive: true });
 	await fs.mkdir('styles');
 
-	for (const { id, title } of sources) {
-		const spinner = ora(`Generating style ${title}`).start();
-		const style = await parseBasemap(id);
-		await fs.writeFile(`styles/${title}.json`, JSON.stringify(style, null, 4));
-		spinner.succeed();
-	}
+	await Promise.all(sources.map(async (source, idx) => {
+		const style = await parseBasemap(source.id);
+		await fs.writeFile(`styles/${source.title}.json`, JSON.stringify(style, null, 4));
+	}))
 }
 
-(async () => main())()
+await main();
