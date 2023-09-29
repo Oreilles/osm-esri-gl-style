@@ -26,8 +26,9 @@ async function parseVectorTileLayerUrl(url, id) {
 		tiles: [
 				style.sources.esri.url + '/' + metadata.tiles[0]
 		],
+		attribution: metadata.copyrightText,
 		description: metadata.description,
-		name: metadata.name
+		name: metadata.name,
 	};
 	style.glyphs = 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf';
 	delete style.sources.esri;
